@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Top Secret ARMY Mission 💜</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #0a0612;
+      --card-bg: rgba(26, 16, 44, 0.78);
+      --border-glow: rgba(184, 115, 255, 0.35);
+      --purple-primary: #a855f7;
+      --purple-accent: #c084fc;
+      --gold-accent: #fbbf24;
+      --text-main: #f3f0f9;
+      --text-muted: #a79cb8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 15% 20%, rgba(139, 92, 246, 0.18) 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(192, 132, 252, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(79, 70, 229, 0.1) 0%, transparent 60%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .stars-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Floating Audio Player Control */
+    .music-btn {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      background: rgba(26, 16, 44, 0.85);
+      border: 1px solid rgba(192, 132, 252, 0.4);
+      color: var(--purple-accent);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    }
+
+    .music-btn:hover {
+      background: rgba(168, 85, 247, 0.2);
+      border-color: var(--purple-primary);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 540px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glow);
+      border-radius: 28px;
+      padding: 36px 28px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 40px rgba(168, 85, 247, 0.15);
+      text-align: center;
+      transition: all 0.4s ease;
+    }
+
+    .tag-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(168, 85, 247, 0.15);
+      border: 1px solid rgba(192, 132, 252, 0.3);
+      color: var(--purple-accent);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.85rem;
+      line-height: 1.25;
+      font-weight: 700;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #ffffff 40%, var(--purple-accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p.subtitle {
+      font-size: 0.96rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      margin-bottom: 24px;
+    }
+
+    .date-selection-box {
+      background: rgba(15, 9, 28, 0.65);
+      border-radius: 20px;
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      margin-bottom: 24px;
+      text-align: left;
+    }
+
+    .date-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: var(--purple-accent);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .date-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .date-chip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .date-chip:hover {
+      background: rgba(168, 85, 247, 0.12);
+      border-color: rgba(168, 85, 247, 0.4);
+    }
+
+    .date-chip.active {
+      background: rgba(168, 85, 247, 0.22);
+      border-color: var(--purple-primary);
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.25);
+    }
+
+    .date-chip-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .date-chip-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .perks-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .perk-pill {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed rgba(168, 85, 247, 0.3);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 0.82rem;
+      color: #ded6ed;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-align: left;
+    }
+
+    .btn-container {
+      position: relative;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      justify-content: center;
+      min-height: 56px;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      border-radius: 16px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-yes {
+      background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+      color: white;
+      box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);
+      flex: 1;
+      max-width: 240px;
+    }
+
+    .btn-yes:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 10px 25px rgba(124, 58, 237, 0.6);
+    }
+
+    .btn-no {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-muted);
+      flex: 1;
+      max-width: 140px;
+      position: relative;
+      user-select: none;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    /* Screen 2: Pass Card */
+    .ticket-screen {
+      display: none;
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .ticket {
+      background: linear-gradient(145deg, #1c1033 0%, #120a22 100%);
+      border: 2px dashed rgba(192, 132, 252, 0.4);
+      border-radius: 24px;
+      padding: 28px 24px;
+      margin: 20px 0;
+      position: relative;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+    }
+
+    .ticket::before, .ticket::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 24px;
+      height: 24px;
+      background: var(--bg-dark);
+      border-radius: 50%;
+      transform: translateY(-50%);
+    }
+
+    .ticket::before { left: -13px; }
+    .ticket::after { right: -13px; }
+
+    .ticket-header {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 16px;
+      margin-bottom: 16px;
+    }
+
+    .ticket-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--purple-accent);
+      letter-spacing: 0.04em;
+    }
+
+    .ticket-detail {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+    }
+
+    .ticket-detail span:first-child {
+      color: var(--text-muted);
+    }
+
+    .ticket-detail span:last-child {
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .chat-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      background: #25d366;
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+      padding: 14px 20px;
+      border-radius: 16px;
+      margin-top: 14px;
+      font-size: 0.95rem;
+      box-shadow: 0 6px 20px rgba(37, 211, 102, 0.35);
+      transition: all 0.2s ease;
+    }
+
+    .chat-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(37, 211, 102, 0.45);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Audio Player -->
+  <audio id="bgMusic" loop preload="auto">
+    <source src="bts_track.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Interactive Music Toggle Button -->
+  <button id="musicToggle" class="music-btn" onclick="toggleAudio()">
+    <span id="musicIcon">🎵</span> <span id="musicText">Play Music</span>
+  </button>
+
+  <canvas class="stars-canvas" id="stars"></canvas>
+
+  <div class="container">
+    <!-- Screen 1: The Bestie Hangout Request -->
+    <div class="glass-card" id="inviteCard">
+      <div class="tag-badge">
+        <span>💜</span> Official Bestie Mission
+      </div>
+
+      <h1>BTS Live Viewing Buddy?</h1>
+      <p class="subtitle">
+        We text 24/7 anyway, so it’s about time we do our first official IRL hangout. Pick whichever date works best for you:
+      </p>
+
+      <div class="date-selection-box">
+        <span class="date-label">Select Date:</span>
+        <div class="date-options">
+          <div class="date-chip active" onclick="selectDate(this, 'November 21st')">
+            <div>
+              <div class="date-chip-title">Option A: Nov 21</div>
+              <div class="date-chip-sub">Live Screening • First slot</div>
+            </div>
+            <span>✨</span>
+          </div>
+          <div class="date-chip" onclick="selectDate(this, 'December 29th')">
+            <div>
+              <div class="date-chip-title">Option B: Dec 29</div>
+              <div class="date-chip-sub">Year-end Cinema Session</div>
+            </div>
+            <span>🎬</span>
+          </div>
+          <div class="date-chip" onclick="selectDate(this, 'Either 21 Nov or 29 Dec (You Pick!)')">
+            <div>
+              <div class="date-chip-title">Option C: I’m Down for Either!</div>
+              <div class="date-chip-sub">Whatever works best</div>
+            </div>
+            <span>💜</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="perks-grid">
+        <div class="perk-pill">🍿 Snacks on me</div>
+        <div class="perk-pill">🎤 Zero awkward silence</div>
+        <div class="perk-pill">💜 Scream during fan chants</div>
+        <div class="perk-pill">🚖 Safe travel guaranteed</div>
+      </div>
+
+      <div class="btn-container">
+        <button class="btn btn-yes" id="yesBtn" onclick="acceptInvite()">
+          YES, I'M DOWN! 💜
+        </button>
+        <button class="btn btn-no" id="noBtn" onmouseenter="dodgeNo()" onclick="dodgeNo()">
+          No
+        </button>
+      </div>
+    </div>
+
+    <!-- Screen 2: Pass Reveal -->
+    <div class="glass-card ticket-screen" id="ticketScreen">
+      <div class="tag-badge">🎉 Mission Confirmed</div>
+      <h1>IT'S OFFICIAL!</h1>
+      <p class="subtitle">First in-person hangout successfully scheduled. Here is your ARMY Duo pass:</p>
+
+      <div class="ticket">
+        <div class="ticket-header">
+          <div class="ticket-title">BTS LIVE CINEMA VIEWING</div>
+          <small style="color: var(--text-muted); font-size: 0.75rem;">OFFICIAL BESTIE IRL PASS</small>
+        </div>
+        <div class="ticket-detail">
+          <span>Hangout Mission</span>
+          <span>First In-Person Session</span>
+        </div>
+        <div class="ticket-detail">
+          <span>Date Selected</span>
+          <span id="confirmedDate">November 21st</span>
+        </div>
+        <div class="ticket-detail">
+          <span>Snack Status</span>
+          <span style="color: var(--gold-accent);">Fully Covered 🍿</span>
+        </div>
+        <div class="ticket-detail">
+          <span>Seat Pair</span>
+          <span>Row ARMY • Side-by-Side</span>
+        </div>
+      </div>
+
+      <a id="waLink" class="chat-btn" href="#" target="_blank">
+        Send Pass via Text / WhatsApp 📲
+      </a>
+    </div>
+  </div>
+
+  <script>
+    let chosenDate = "November 21st";
+    const noBtnTexts = [
+      "Wait, what?",
+      "Popcorn is on me tho!",
+      "Are you sure??",
+      "Error 404: Option denied",
+      "We text way too much for a No!",
+      "Try again 😜"
+    ];
+    let noClickCount = 0;
+
+    // Audio Player Logic
+    const audio = document.getElementById('bgMusic');
+    const musicIcon = document.getElementById('musicIcon');
+    const musicText = document.getElementById('musicText');
+    let isPlaying = false;
+
+    function toggleAudio() {
+      if (isPlaying) {
+        audio.pause();
+        musicIcon.innerText = "🔇";
+        musicText.innerText = "Muted";
+        isPlaying = false;
+      } else {
+        audio.play().then(() => {
+          musicIcon.innerText = "🎵";
+          musicText.innerText = "Playing";
+          isPlaying = true;
+        }).catch(err => {
+          console.log("Audio waiting for user click.");
+        });
+      }
+    }
+
+    // Auto-plays track on the very first screen interaction
+    document.body.addEventListener('click', function startOnFirstClick() {
+      if (!isPlaying) {
+        audio.play().then(() => {
+          musicIcon.innerText = "🎵";
+          musicText.innerText = "Playing";
+          isPlaying = true;
+        }).catch(() => {});
+      }
+    }, { once: true });
+
+    function selectDate(element, date) {
+      document.querySelectorAll('.date-chip').forEach(c => c.classList.remove('active'));
+      element.classList.add('active');
+      chosenDate = date;
+    }
+
+    function dodgeNo() {
+      const noBtn = document.getElementById('noBtn');
+      const yesBtn = document.getElementById('yesBtn');
+
+      noClickCount++;
+      noBtn.innerText = noBtnTexts[noClickCount % noBtnTexts.length];
+
+      // Displacement calculation
+      const x = (Math.random() - 0.5) * 160;
+      const y = (Math.random() - 0.5) * 100;
+      noBtn.style.transform = `translate(${x}px, ${y}px)`;
+
+      // Gradually expand the Yes button
+      const currentScale = 1 + (noClickCount * 0.05);
+      if (currentScale <= 1.3) {
+        yesBtn.style.transform = `scale(${currentScale})`;
+      }
+    }
+
+    function acceptInvite() {
+      document.getElementById('inviteCard').style.display = 'none';
+      const ticketScreen = document.getElementById('ticketScreen');
+      ticketScreen.style.display = 'block';
+      document.getElementById('confirmedDate').innerText = chosenDate;
+
+      // WhatsApp text payload
+      const message = encodeURIComponent(`Hey! I saw your BTS viewing mission website 💜 Count me in for ${chosenDate}! Don't forget my popcorn 🍿`);
+      document.getElementById('waLink').href = `https://wa.me/?text=${message}`;
+
+      // Confetti burst
+      const duration = 3 * 1000;
+      const end = Date.now() + duration;
+
+      (function frame() {
+        confetti({
+          particleCount: 4,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 },
+          colors: ['#a855f7', '#c084fc', '#ffffff', '#fbbf24']
+        });
+        confetti({
+          particleCount: 4,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 },
+          colors: ['#a855f7', '#c084fc', '#ffffff', '#fbbf24']
+        });
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      }());
+    }
+
+    // Dynamic Starfield Canvas
+    const canvas = document.getElementById('stars');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      stars = [];
+      for (let i = 0; i < 70; i++) {
+        stars.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 1.5,
+          alpha: Math.random(),
+          speed: 0.005 + Math.random() * 0.015
+        });
+      }
+    }
+
+    function drawStars() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      stars.forEach(s => {
+        s.alpha += s.speed;
+        const opacity = (Math.sin(s.alpha) + 1) / 2;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(192, 132, 252, ${opacity * 0.7})`;
+        ctx.fill();
+      });
+      requestAnimationFrame(drawStars);
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    drawStars();
+  </script>
+</body>
+</html>
